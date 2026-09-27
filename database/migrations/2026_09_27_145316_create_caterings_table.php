@@ -11,27 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengambilan_lauks', function (Blueprint $table) {
-            $table->id();
-
-            $table->foreignId('santri_id')
-                ->constrained('santris')
-                ->cascadeOnDelete();
-
-            $table->foreignId('lauk_id')
-                ->constrained('lauks')
-                ->cascadeOnDelete();
-
+        Schema::create('caterings', function (Blueprint $table) {
+            $table->id('idCatering'); // Pastikan primary key diset idCatering
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->date('tanggal');
+            $table->string('sesi');
+            $table->string('menu');
             $table->timestamps();
         });
     }
-   
+
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengambilan_lauks');
+        Schema::dropIfExists('caterings');
     }
 };

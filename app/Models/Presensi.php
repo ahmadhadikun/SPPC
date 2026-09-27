@@ -5,19 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PengambilanLauk extends Model
+class Presensi extends Model
 {
     use HasFactory;
 
-    protected $table = 'pengambilan_lauks';
-    protected $primaryKey = 'idPengambilan';
+    protected $table = 'presensis';
+    protected $primaryKey = 'idPresensi';
 
     protected $fillable = [
         'santri_id',
         'catering_id',
-        'user_id',
-        'waktu_ambil',
-        'status_ambil',
+        'tanggal',
+        'waktu',
+        'status',
     ];
 
     // Relasi ke Santri
@@ -30,11 +30,5 @@ class PengambilanLauk extends Model
     public function catering()
     {
         return $this->belongsTo(Catering::class, 'catering_id', 'idCatering');
-    }
-
-    // Relasi ke User (Petugas Pengurus Catering)
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
     }
 }
