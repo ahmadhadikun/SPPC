@@ -1,74 +1,186 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPPC - Sistem Pengambilan Lauk Santri</title>
+```blade
+<x-guest-layout>
 
-    @vite(['resources/css/app.css','resources/js/app.js'])
-</head>
+    <div class="min-h-screen flex items-center justify-center bg-emerald-50 px-4 py-10">
 
-    <div class="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 min-h-screen">
+        <div class="w-full max-w-md">
 
-    <div class="flex items-center justify-center min-h-screen p-6">
-
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8">
-
+            <!-- Header -->
             <div class="text-center mb-8">
 
-                <div class="w-20 h-20 bg-emerald-100 rounded-full mx-auto flex items-center justify-center text-4xl">
-                    🍽️
+                <div class="mx-auto w-20 h-20 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg mb-5">
+                    <span class="text-4xl">🍽️</span>
                 </div>
 
-                <h1 class="text-3xl font-bold text-emerald-600 mt-4">
+                <h1 class="text-3xl font-bold text-emerald-800">
                     SPPC
                 </h1>
 
                 <p class="text-gray-500 mt-2">
-                    Sistem Pengambilan Lauk Santri
+                    Sistem Pengambilan Lauk
+                </p>
+
+                <p class="text-sm text-gray-400 mt-1">
+                    Silakan masuk untuk melanjutkan
                 </p>
 
             </div>
 
-            <form class="space-y-5">
 
-                <div>
-                    <label class="block text-sm text-gray-600 mb-2">
-                        Username
-                    </label>
+            <!-- Login Card -->
+            <div class="bg-white rounded-2xl shadow-lg p-8">
 
-                    <input
-                        type="text"
-                        placeholder="Masukkan username"
-                        class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
+                <!-- Session Status -->
+                <x-auth-session-status
+                    class="mb-4"
+                    :status="session('status')" />
 
-                <div>
-                    <label class="block text-sm text-gray-600 mb-2">
-                        Password
-                    </label>
 
-                    <input
-                        type="password"
-                        placeholder="Masukkan password"
-                        class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
+                <!-- Login Form -->
+                <form method="POST" action="{{ route('login') }}">
 
-                <a href="/dashboard"
-                    class="block w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition text-center">
+                    @csrf
 
-                    Masuk
 
-                </a>
+                    <!-- Email -->
+                    <div>
 
-            </form>
+                        <x-input-label
+                            for="email"
+                            :value="__('Email')"
+                            class="text-gray-700" />
 
-            <p class="text-center text-xs text-gray-400 mt-8">
-                Pondok Pesantren Al-Amanah • SPPC
+                        <x-text-input
+                            id="email"
+                            class="block mt-2 w-full rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                            type="email"
+                            name="email"
+                            :value="old('email')"
+                            required
+                            autofocus
+                            autocomplete="username"
+                            placeholder="Masukkan email" />
+
+                        <x-input-error
+                            :messages="$errors->get('email')"
+                            class="mt-2" />
+
+                    </div>
+
+
+                    <!-- Password -->
+                    <div class="mt-5">
+
+                        <x-input-label
+                            for="password"
+                            :value="__('Password')"
+                            class="text-gray-700" />
+
+                        <x-text-input
+                            id="password"
+                            class="block mt-2 w-full rounded-xl border-gray-300 focus:border-emerald-500 focus:ring-emerald-500"
+                            type="password"
+                            name="password"
+                            required
+                            autocomplete="current-password"
+                            placeholder="Masukkan password" />
+
+                        <x-input-error
+                            :messages="$errors->get('password')"
+                            class="mt-2" />
+
+                    </div>
+
+
+                    <!-- Remember Me -->
+                    <div class="mt-5">
+
+                        <label
+                            for="remember_me"
+                            class="inline-flex items-center">
+
+                            <input
+                                id="remember_me"
+                                type="checkbox"
+                                class="rounded border-gray-300 text-emerald-600 shadow-sm focus:ring-emerald-500"
+                                name="remember">
+
+                            <span class="ms-2 text-sm text-gray-600">
+                                {{ __('Remember me') }}
+                            </span>
+
+                        </label>
+
+                    </div>
+
+
+                    <!-- Login Button -->
+                    <div class="mt-6">
+
+                        <x-primary-button
+                            class="w-full justify-center py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 focus:bg-emerald-700 active:bg-emerald-800">
+
+                            {{ __('Masuk') }}
+
+                        </x-primary-button>
+
+                    </div>
+
+
+                    <!-- Forgot Password -->
+                    @if (Route::has('password.request'))
+
+                        <div class="text-center mt-5">
+
+                            <a
+                                class="text-sm text-emerald-600 hover:text-emerald-700 underline"
+                                href="{{ route('password.request') }}">
+
+                                {{ __('Lupa password?') }}
+
+                            </a>
+
+                        </div>
+
+                    @endif
+
+
+                    <!-- Register -->
+                    @if (Route::has('register'))
+
+                        <div class="text-center mt-4">
+
+                            <span class="text-sm text-gray-500">
+                                Belum punya akun?
+                            </span>
+
+                            <a
+                                href="{{ route('register') }}"
+                                class="text-sm text-emerald-600 hover:text-emerald-700 underline ms-1">
+
+                                {{ __('Daftar sekarang') }}
+
+                            </a>
+
+                        </div>
+
+                    @endif
+
+                </form>
+
+            </div>
+
+
+            <!-- Footer -->
+            <p class="text-center text-sm text-gray-400 mt-6">
+
+                SPPC &copy; {{ date('Y') }}
+
             </p>
 
         </div>
 
     </div>
 
-</div>
+</x-guest-layout>
+```

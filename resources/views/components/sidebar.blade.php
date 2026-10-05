@@ -14,13 +14,16 @@
 
     <nav class="space-y-2">
 
-        <a href="/dashboard"
-            class="block px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500">
+        {{-- Dashboard --}}
+        <a href="{{ route('dashboard') }}"
+            class="block px-4 py-3 rounded-xl hover:bg-emerald-600">
 
             Dashboard
 
         </a>
 
+
+        {{-- Pengambilan Lauk --}}
         <a href="#"
             class="block px-4 py-3 rounded-xl hover:bg-emerald-600">
 
@@ -28,6 +31,8 @@
 
         </a>
 
+
+        {{-- Riwayat --}}
         <a href="#"
             class="block px-4 py-3 rounded-xl hover:bg-emerald-600">
 
@@ -35,21 +40,41 @@
 
         </a>
 
-        <a href="#"
+
+        {{-- Manajemen Pengguna --}}
+        <a href="{{ route('users.index') }}"
+            class="block px-4 py-3 rounded-xl hover:bg-emerald-600">
+
+            Manajemen Pengguna
+
+        </a>
+
+
+        {{-- Profil --}}
+        <a href="{{ route('profile.edit') }}"
             class="block px-4 py-3 rounded-xl hover:bg-emerald-600">
 
             Profil
 
         </a>
 
+
         <hr class="border-emerald-600 my-5">
 
-        <a href="/"
-            class="block px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600">
 
-            Logout
+        {{-- Logout --}}
+        <form method="POST" action="{{ route('logout') }}">
 
-        </a>
+            @csrf
+
+            <button type="submit"
+                class="w-full text-left px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600">
+
+                Logout
+
+            </button>
+
+        </form>
 
     </nav>
 
