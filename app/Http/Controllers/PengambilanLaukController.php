@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\QrCode;
+use App\Models\Catering;
 use App\Models\PengambilanLauk;
-use Illuminate\Http\Request;
+use App\Models\QrCode;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PengambilanLaukController extends Controller
 {
-    // Menampilkan halaman scan dan riwayat pengambilan hari ini
+    /**
+     * Menampilkan halaman scan dan riwayat pengambilan hari ini.
+     */
     public function index()
     {
-        $riwayatHariIni = PengambilanLauk::with('santri')
+        $riwayatHariIni = PengambilanLauk::with([
+            'santri',
+            'catering',
+            'user',
+        ])
             ->whereDate('waktu_ambil', Carbon::today())
             ->latest('waktu_ambil')
             ->get();
@@ -20,44 +27,85 @@ class PengambilanLaukController extends Controller
         return view('scan.index', compact('riwayatHariIni'));
     }
 
-    // Memproses data QR Code yang di-scan
+    /**
+     * Memproses QR Code yang di-scan.
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'kode_qr' => 'required|string',
+        $validated = $request->validate([
+            'kode_qr' => ['required', 'string'],
         ]);
 
-        $qrCode = QrCode::where('kode_qr', $request->kode_qr)->first();
+        $qrCode = QrCode::with('santri')
+            ->where('kode_qr', $validated['kode_qr'])
+            ->first();
 
         if (!$qrCode) {
-            return back()->with('error', 'Kode QR tidak terdaftar di dalam sistem!');
+            return back()->with(
+                'error',
+                'Kode QR tidak terdaftar di dalam sistem!'
+            );
         }
 
         if (!$qrCode->status) {
-            return back()->with('error', 'Kode QR ini sudah nonaktif!');
+            return back()->with(
+                'error',
+                'Kode QR ini sudah nonaktif!'
+            );
         }
 
         $santri = $qrCode->santri;
 
         if (!$santri) {
-            return back()->with('error', 'Data santri pemilik QR ini tidak ditemukan!');
+            return back()->with(
+                'error',
+                'Data santri pemilik QR ini tidak ditemukan!'
+            );
         }
 
-        // Cek apakah santri sudah mengambil lauk hari ini
-        $sudahAmbil = PengambilanLauk::where('santri_id', $santri->idSantri)
+        // Cek apakah santri sudah mengambil lauk hari ini.
+        $sudahAmbil = PengambilanLauk::where(
+            'santri_id',
+            $santri->idSantri
+        )
             ->whereDate('waktu_ambil', Carbon::today())
             ->exists();
 
         if ($sudahAmbil) {
-            return back()->with('error', "PERINGATAN: Santri atas nama {$santri->nama_santri} (Kamar: {$santri->kamar}) SUDAH mengambil jatah lauk hari ini!");
+            return back()->with(
+                'error',
+                "PERINGATAN: Santri {$santri->nama_santri} " .
+                "(Kamar: {$santri->kamar}) sudah mengambil " .
+                "jatah lauk hari ini!"
+            );
         }
 
-        // Catat pengambilan lauk ke database
+        // Ambil catering untuk hari ini.
+        $catering = Catering::whereDate(
+            'tanggal',
+            Carbon::today()
+        )->first();
+
+        if (!$catering) {
+            return back()->with(
+                'error',
+                'Data catering untuk hari ini belum tersedia!'
+            );
+        }
+
+        // Simpan data pengambilan.
         PengambilanLauk::create([
             'santri_id' => $santri->idSantri,
+            'catering_id' => $catering->idCatering,
+            'user_id' => auth()->id(),
             'waktu_ambil' => Carbon::now(),
+            'status_ambil' => 'Sudah Ambil',
         ]);
 
-        return back()->with('success', "Berhasil! Jatah lauk untuk santri {$santri->nama_santri} (Kamar: {$santri->kamar}) telah dicatat.");
+        return back()->with(
+            'success',
+            "Berhasil! Jatah lauk untuk {$santri->nama_santri} " .
+            "(Kamar: {$santri->kamar}) telah dicatat."
+        );
     }
 }
