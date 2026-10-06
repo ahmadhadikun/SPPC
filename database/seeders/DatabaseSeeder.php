@@ -22,18 +22,21 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin Utama',
             'email' => 'admin@sppc.com',
             'password' => Hash::make('password123'),
+            'role' => 'admin',
         ]);
 
         $pengurus = User::create([
             'name' => 'Pengurus Catering',
             'email' => 'pengurus@sppc.com',
             'password' => Hash::make('password123'),
+            'role' => 'catering',
         ]);
 
         $pengasuh = User::create([
             'name' => 'Pengasuh Pesantren',
             'email' => 'pengasuh@sppc.com',
             'password' => Hash::make('password123'),
+            'role' => 'pengasuh',
         ]);
 
         // 2. Buat Data Santri Initial

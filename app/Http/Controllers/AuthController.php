@@ -13,7 +13,7 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    // Proses autentikasi login
+    // Proses autentikasi login dengan pengecekan role
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -24,7 +24,17 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect()->intended('dashboard');
+            $user = Auth::user();
+
+            // Pengalihan halaman berdasarkan role pengguna
+            if ($user->role === 'catering') {
+                return redirect()->intended('/scan'); 
+            } elseif ($user->role === 'pengasuh') {
+                return redirect()->intended('/laporan'); 
+            }
+
+            // Default untuk Admin
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([

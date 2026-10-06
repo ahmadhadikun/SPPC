@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SantriController;
 use App\Http\Controllers\PengambilanLaukController;
+use App\Http\Controllers\LaporanController;
 use App\Models\Santri;
 use App\Models\QrCode;
 use App\Models\PengambilanLauk;
@@ -30,13 +31,31 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Dashboard dengan Data Statistik
+    // Dashboard dengan Pemisahan Berdasarkan Role
     Route::get('/dashboard', function () {
-        $totalSantri = Santri::count();
-        $presensiHariIni = PengambilanLauk::whereDate('waktu_ambil', Carbon::today())->count();
-        $qrTerdaftar = QrCode::count();
+        $user = auth()->user();
 
-        return view('dashboard', compact('totalSantri', 'presensiHariIni', 'qrTerdaftar'));
+        // 1. Role Admin (Akses Lengkap)
+        if ($user->role === 'admin') {
+            $totalSantri = Santri::count();
+            $presensiHariIni = PengambilanLauk::whereDate('waktu_ambil', Carbon::today())->count();
+            $qrTerdaftar = QrCode::count();
+            
+            return view('dashboard.admin', compact('totalSantri', 'presensiHariIni', 'qrTerdaftar'));
+        } 
+        
+        // 2. Role Catering (Fokus ke Scan QR)
+        elseif ($user->role === 'catering') {
+            return view('dashboard.catering');
+        } 
+        
+        // 3. Role Pengasuh (Fokus ke Laporan & Rekap)
+        elseif ($user->role === 'pengasuh') {
+            $presensiHariIni = PengambilanLauk::whereDate('waktu_ambil', Carbon::today())->count();
+            return view('dashboard.pengasuh', compact('presensiHariIni'));
+        }
+
+        abort(403, 'Akses ditolak. Role tidak dikenali.');
     })->name('dashboard');
 
     // Pengelolaan Data Santri (CRUD)
@@ -45,4 +64,8 @@ Route::middleware('auth')->group(function () {
     // Fitur Pemindaian Kode QR Catering / Lauk
     Route::get('/scan', [PengambilanLaukController::class, 'index'])->name('scan.index');
     Route::post('/scan', [PengambilanLaukController::class, 'store'])->name('scan.store');
+
+    // Rute Laporan dan Unduh PDF
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/pdf', [LaporanController::class, 'pdf'])->name('laporan.pdf');
 });
