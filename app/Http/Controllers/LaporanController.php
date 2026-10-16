@@ -2,26 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\PengambilanLauk;
-use Barryvdh\DomPDF\Facade\Pdf; // Pastikan namespace ini ditambahkan
+use App\Models\Presensi;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
     public function index()
     {
-        $laporan = PengambilanLauk::with('santri')->latest('waktu_ambil')->get();
+        $laporan = Presensi::with([
+            'santri',
+            'catering',
+            'pengambilanLauk',
+        ])
+            ->orderByDesc('waktu_scan')
+            ->get();
+
         return view('laporan.index', compact('laporan'));
     }
 
     public function pdf()
     {
-        $laporan = PengambilanLauk::with('santri')->latest('waktu_ambil')->get();
+        $laporan = Presensi::with([
+            'santri',
+            'catering',
+            'pengambilanLauk',
+        ])
+            ->orderByDesc('waktu_scan')
+            ->get();
 
-        // Load view khusus PDF
         $pdf = Pdf::loadView('laporan.pdf', compact('laporan'));
 
-        // Langsung unduh file PDF dengan nama 'rekap-laporan-lauk.pdf'
         return $pdf->download('rekap-laporan-lauk.pdf');
     }
 }

@@ -9,31 +9,28 @@ class Catering extends Model
 {
     use HasFactory;
 
-    protected $table = 'caterings';
-    protected $primaryKey = 'idCatering';
+    protected $table = 'catering';
+
+    protected $primaryKey = 'id_catering';
 
     protected $fillable = [
-        'user_id',
         'tanggal',
-        'sesi',
+        'waktu',
         'menu',
     ];
 
-    // Relasi ke User (Admin/Pengurus)
-    public function user()
+    protected function casts(): array
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return [
+            'tanggal' => 'date',
+        ];
     }
-
-    // Relasi ke Presensi
     public function presensis()
     {
-        return $this->hasMany(Presensi::class, 'catering_id', 'idCatering');
-    }
-
-    // Relasi ke PengambilanLauk
-    public function pengambilanLauks()
-    {
-        return $this->hasMany(PengambilanLauk::class, 'catering_id', 'idCatering');
+        return $this->hasMany(
+            \App\Models\Presensi::class,
+            'id_catering',
+            'id_catering'
+        );
     }
 }

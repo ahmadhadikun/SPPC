@@ -9,18 +9,22 @@ class QrCode extends Model
 {
     use HasFactory;
 
-    protected $table = 'qr_codes';
-    protected $primaryKey = 'idQR';
+    protected $table = 'qrcode';
+
+    protected $primaryKey = 'id_qrcode';
 
     protected $fillable = [
-        'santri_id',
+        'id_santri',
         'kode_qr',
-        'status',
     ];
 
     // Relasi ke Santri
     public function santri()
     {
-        return $this->belongsTo(Santri::class, 'santri_id', 'idSantri');
+        return $this->belongsTo(
+            Santri::class,
+            'id_santri',
+            'id_santri'
+        );
     }
 }

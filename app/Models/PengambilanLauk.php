@@ -9,32 +9,22 @@ class PengambilanLauk extends Model
 {
     use HasFactory;
 
-    protected $table = 'pengambilan_lauks';
-    protected $primaryKey = 'idPengambilan';
+    protected $table = 'pengambilan_lauk';
+
+    protected $primaryKey = 'id_pengambilan';
 
     protected $fillable = [
-        'santri_id',
-        'catering_id',
-        'user_id',
-        'waktu_ambil',
-        'status_ambil',
+        'id_presensi',
+        'jumlah_lauk',
     ];
 
-    // Relasi ke Santri
-    public function santri()
+    // Relasi ke Presensi
+    public function presensi()
     {
-        return $this->belongsTo(Santri::class, 'santri_id', 'idSantri');
-    }
-
-    // Relasi ke Catering
-    public function catering()
-    {
-        return $this->belongsTo(Catering::class, 'catering_id', 'idCatering');
-    }
-
-    // Relasi ke User (Petugas Pengurus Catering)
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(
+            Presensi::class,
+            'id_presensi',
+            'id_presensi'
+        );
     }
 }

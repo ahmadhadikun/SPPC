@@ -9,18 +9,22 @@ class Laporan extends Model
 {
     use HasFactory;
 
-    protected $table = 'laporans';
-    protected $primaryKey = 'idLaporan';
+    protected $table = 'laporan';
+
+    protected $primaryKey = 'id_laporan';
 
     protected $fillable = [
-        'user_id',
-        'tanggal',
-        'jenis',
+        'id_catering',
+        'total_hadir',
+        'total_tidak_hadir',
     ];
 
-    // Relasi ke User
-    public function user()
+    public function catering()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(
+            Catering::class,
+            'id_catering',
+            'id_catering'
+        );
     }
 }

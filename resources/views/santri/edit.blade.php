@@ -1,3 +1,4 @@
+
 @extends('layouts.app')
 
 @section('title', 'Edit Santri - SPPC')
@@ -9,7 +10,14 @@
             <div class="card-header bg-warning text-dark">
                 <h4 class="mb-0">Edit Data Santri</h4>
             </div>
+
             <div class="card-body">
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
                 @if($errors->any())
                     <div class="alert alert-danger">
                         <ul class="mb-0">
@@ -20,27 +28,75 @@
                     </div>
                 @endif
 
-                <form action="{{ route('santri.update', $santri->idSantri) }}" method="POST">
+                <form action="{{ route('santri.update', $santri->id_santri) }}"
+                      method="POST">
                     @csrf
                     @method('PUT')
+
                     <div class="mb-3">
-                        <label for="nis" class="form-label">NIS (Nomor Induk Santri)</label>
-                        <input type="text" class="form-control" id="nis" name="nis" value="{{ old('nis', $santri->nis) }}" required>
+                        <label for="id_santri" class="form-label">ID Santri</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="id_santri"
+                            value="{{ $santri->id_santri }}"
+                            disabled
+                        >
+                        <div class="form-text">
+                            ID dibuat otomatis oleh database dan tidak dapat diubah.
+                        </div>
                     </div>
+
                     <div class="mb-3">
-                        <label for="nama_santri" class="form-label">Nama Santri</label>
-                        <input type="text" class="form-control" id="nama_santri" name="nama_santri" value="{{ old('nama_santri', $santri->nama_santri) }}" required>
+                        <label for="nama" class="form-label">Nama Santri</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nama"
+                            name="nama"
+                            value="{{ old('nama', $santri->nama) }}"
+                            maxlength="255"
+                            required
+                        >
                     </div>
+
                     <div class="mb-3">
-                        <label for="kamar" class="form-label">Kamar / Asrama</label>
-                        <input type="text" class="form-control" id="kamar" name="kamar" value="{{ old('kamar', $santri->kamar) }}" required>
+                        <label for="kelas" class="form-label">Kelas</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="kelas"
+                            name="kelas"
+                            value="{{ old('kelas', $santri->kelas) }}"
+                            maxlength="100"
+                            required
+                        >
                     </div>
+
+                    <div class="mb-3">
+                        <label for="asrama" class="form-label">Asrama</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="asrama"
+                            name="asrama"
+                            value="{{ old('asrama', $santri->asrama) }}"
+                            maxlength="100"
+                            required
+                        >
+                    </div>
+
                     <div class="d-flex justify-content-between">
-                        <a href="{{ route('santri.index') }}" class="btn btn-secondary">
-                            <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+                        <a href="{{ route('santri.index') }}"
+                           class="btn btn-secondary">
+                            <i class="fa-solid fa-arrow-left me-1"></i>
+                            Kembali
                         </a>
-                        <button type="submit" class="btn btn-warning text-dark">
-                            <i class="fa-solid fa-pen-to-square me-1"></i> Perbarui Data
+
+                        <button type="submit"
+                                class="btn btn-warning text-dark">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>
+                            Perbarui Data
                         </button>
                     </div>
                 </form>

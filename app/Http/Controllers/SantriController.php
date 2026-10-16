@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Santri;
 use App\Models\QrCode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SantriController extends Controller
 {
     public function index()
     {
-        $santris = Santri::with('qrCode')->latest('idSantri')->get();
+        $santris = Santri::with('qrCode')
+            ->orderByDesc('id_santri')
+            ->get();
+
         return view('santri.index', compact('santris'));
     }
 
@@ -21,31 +26,37 @@ class SantriController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nis' => 'required|string|unique:santris,nis',
-            'nama_santri' => 'required|string|max:255',
-            'kamar' => 'required|string|max:100',
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:100',
+            'asrama' => 'required|string|max:100',
         ]);
 
-        $santri = Santri::create([
-            'nis' => $request->nis,
-            'nama_santri' => $request->nama_santri,
-            'kamar' => $request->kamar,
-        ]);
+        DB::transaction(function () use ($validated) {
+            $santri = Santri::create($validated);
 
-        // Otomatis buatkan QR Code unik untuk santri baru
-        QrCode::create([
-            'santri_id' => $santri->idSantri,
-            'kode_qr' => 'QR-SANTRI-' . $santri->nis,
-            'status' => true,
-        ]);
+            QrCode::create([
+                'id_santri' => $santri->id_santri,
+                'kode_qr' => 'QR-' . Str::uuid(),
+            ]);
+        });
 
-        return redirect()->route('santri.index')->with('success', 'Data santri berhasil ditambahkan.');
+        return redirect()
+            ->route('santri.index')
+            ->with('success', 'Data santri dan QR Code berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $santri = Santri::with('qrCode')->findOrFail($id);
+
+        return response()->json($santri);
     }
 
     public function edit($id)
     {
         $santri = Santri::findOrFail($id);
+
         return view('santri.edit', compact('santri'));
     }
 
@@ -53,26 +64,37 @@ class SantriController extends Controller
     {
         $santri = Santri::findOrFail($id);
 
-        $request->validate([
-            'nis' => 'required|string|unique:santris,nis,' . $id . ',idSantri',
-            'nama_santri' => 'required|string|max:255',
-            'kamar' => 'required|string|max:100',
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kelas' => 'required|string|max:100',
+            'asrama' => 'required|string|max:100',
         ]);
 
-        $santri->update([
-            'nis' => $request->nis,
-            'nama_santri' => $request->nama_santri,
-            'kamar' => $request->kamar,
-        ]);
+        $santri->update($validated);
 
-        return redirect()->route('santri.index')->with('success', 'Data santri berhasil diperbarui.');
+        return redirect()
+            ->route('santri.index')
+            ->with('success', 'Data santri berhasil diperbarui.');
     }
 
     public function destroy($id)
     {
         $santri = Santri::findOrFail($id);
-        $santri->delete();
 
-        return redirect()->route('santri.index')->with('success', 'Data santri berhasil dihapus.');
+        // Jangan hapus santri jika sudah memiliki riwayat presensi.
+        if ($santri->presensis()->exists()) {
+            return redirect()
+                ->route('santri.index')
+                ->with('error', 'Santri tidak dapat dihapus karena memiliki riwayat presensi.');
+        }
+
+        DB::transaction(function () use ($santri) {
+            $santri->qrCode()->delete();
+            $santri->delete();
+        });
+
+        return redirect()
+            ->route('santri.index')
+            ->with('success', 'Data santri berhasil dihapus.');
     }
 }

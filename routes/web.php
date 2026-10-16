@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SantriController;
 use App\Http\Controllers\PengambilanLaukController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\CateringController;
 use App\Models\Santri;
 use App\Models\QrCode;
 use App\Models\PengambilanLauk;
@@ -38,7 +39,7 @@ Route::middleware('auth')->group(function () {
         // 1. Role Admin (Akses Lengkap)
         if ($user->role === 'admin') {
             $totalSantri = Santri::count();
-            $presensiHariIni = PengambilanLauk::whereDate('waktu_ambil', Carbon::today())->count();
+            $presensiHariIni = PengambilanLauk::whereDate('created_at', Carbon::today())->count();
             $qrTerdaftar = QrCode::count();
             
             return view('dashboard.admin', compact('totalSantri', 'presensiHariIni', 'qrTerdaftar'));
@@ -60,6 +61,9 @@ Route::middleware('auth')->group(function () {
 
     // Pengelolaan Data Santri (CRUD)
     Route::resource('santri', SantriController::class);
+    // Pengelolaan Jadwal Catering (CRUD)
+    Route::resource('catering', CateringController::class)
+        ->except(['show']);
 
     // Fitur Pemindaian Kode QR Catering / Lauk
     Route::get('/scan', [PengambilanLaukController::class, 'index'])->name('scan.index');

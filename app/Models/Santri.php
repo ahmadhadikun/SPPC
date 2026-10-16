@@ -9,36 +9,33 @@ class Santri extends Model
 {
     use HasFactory;
 
-    protected $table = 'santris';
-    protected $primaryKey = 'idSantri';
+    protected $table = 'santri';
+
+    protected $primaryKey = 'id_santri';
 
     protected $fillable = [
-        'nis',
-        'nama_santri',
-        'kamar',
+        'nama',
+        'kelas',
+        'asrama',
     ];
-
-    // Relasi ke PengambilanLauk
-    public function pengambilanLauks()
-    {
-        return $this->hasMany(PengambilanLauk::class, 'santri_id', 'idSantri');
-    }
 
     // Relasi ke Presensi
     public function presensis()
     {
-        return $this->hasMany(Presensi::class, 'santri_id', 'idSantri');
+        return $this->hasMany(
+            Presensi::class,
+            'id_santri',
+            'id_santri'
+        );
     }
 
-    // Relasi ke QrCode
+    // Relasi ke QR Code
     public function qrCode()
     {
-        return $this->hasOne(QrCode::class, 'santri_id', 'idSantri');
-    }
-
-    // Relasi ke PesertaCatering
-    public function pesertaCatering()
-    {
-        return $this->hasOne(PesertaCatering::class, 'santri_id', 'idSantri');
+        return $this->hasOne(
+            QrCode::class,
+            'id_santri',
+            'id_santri'
+        );
     }
 }
