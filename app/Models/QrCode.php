@@ -9,12 +9,12 @@ class QrCode extends Model
 {
     use HasFactory;
 
-    protected $table = 'qrcode';
+    protected $table = 'qr_codes';
 
-    protected $primaryKey = 'id_qrcode';
+    protected $primaryKey = 'idQR';
 
     protected $fillable = [
-        'id_santri',
+        'santri_id',
         'kode_qr',
     ];
 
@@ -23,8 +23,8 @@ class QrCode extends Model
     {
         return $this->belongsTo(
             Santri::class,
-            'id_santri',
-            'id_santri'
+            'santri_id',
+            'idSantri'
         );
     }
 }

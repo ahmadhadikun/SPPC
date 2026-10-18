@@ -9,48 +9,46 @@ class Presensi extends Model
 {
     use HasFactory;
 
-    protected $table = 'presensi';
+    protected $table = 'presensis';
 
-    protected $primaryKey = 'id_presensi';
+    protected $primaryKey = 'idPresensi';
 
     protected $fillable = [
-        'id_santri',
-        'id_catering',
+        'santri_id',
+        'catering_id',
+        'tanggal',
+        'waktu',
         'status',
-        'waktu_scan',
     ];
 
     protected $casts = [
-        'waktu_scan' => 'datetime',
+        'tanggal' => 'date',
     ];
 
-    // Relasi ke Santri
     public function santri()
     {
         return $this->belongsTo(
             Santri::class,
-            'id_santri',
-            'id_santri'
+            'santri_id',
+            'idSantri'
         );
     }
 
-    // Relasi ke Catering
     public function catering()
     {
         return $this->belongsTo(
             Catering::class,
-            'id_catering',
-            'id_catering'
+            'catering_id',
+            'idCatering'
         );
     }
 
-    // Relasi ke Pengambilan Lauk
     public function pengambilanLauk()
     {
         return $this->hasOne(
             PengambilanLauk::class,
-            'id_presensi',
-            'id_presensi'
+            'catering_id',
+            'catering_id'
         );
     }
 }

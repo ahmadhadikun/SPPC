@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Tambah Santri - SPPC')
@@ -30,6 +29,20 @@
 
                 <form action="{{ route('santri.store') }}" method="POST">
                     @csrf
+
+                    {{-- Input NIS --}}
+                    <div class="mb-3">
+                        <label for="nis" class="form-label">NIS (Nomor Induk Santri)</label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="nis"
+                            name="nis"
+                            value="{{ old('nis') }}"
+                            maxlength="50"
+                            placeholder="Contoh: 2026001 (Boleh dikosongkan untuk generate otomatis)"
+                        >
+                    </div>
 
                     <div class="mb-3">
                         <label for="nama" class="form-label">Nama Santri</label>

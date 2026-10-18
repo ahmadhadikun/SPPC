@@ -9,14 +9,15 @@ class Santri extends Model
 {
     use HasFactory;
 
-    protected $table = 'santri';
+    protected $table = 'santris';
 
-    protected $primaryKey = 'id_santri';
+    // Primary key sesuai database
+    protected $primaryKey = 'idSantri';
 
     protected $fillable = [
-        'nama',
-        'kelas',
-        'asrama',
+        'nis',
+        'nama_santri',
+        'kamar',
     ];
 
     // Relasi ke Presensi
@@ -24,8 +25,8 @@ class Santri extends Model
     {
         return $this->hasMany(
             Presensi::class,
-            'id_santri',
-            'id_santri'
+            'idSantri',
+            'idSantri'
         );
     }
 
@@ -34,8 +35,8 @@ class Santri extends Model
     {
         return $this->hasOne(
             QrCode::class,
-            'id_santri',
-            'id_santri'
+            'santri_id',
+            'idSantri'
         );
     }
 }

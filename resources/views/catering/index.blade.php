@@ -61,23 +61,30 @@
                         @forelse($caterings as $catering)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ $catering->tanggal->format('d-m-Y') }}</td>
-                                <td>{{ $catering->waktu }}</td>
-                                <td>{{ $catering->menu }}</td>
+
                                 <td>
-                                    <a href="{{ route('catering.edit', $catering->id_catering) }}"
+                                    {{ $catering->tanggal->format('d-m-Y') }}
+                                </td>
+
+                                <td>{{ $catering->sesi }}</td>
+
+                                <td>{{ $catering->menu }}</td>
+
+                                <td>
+                                    <a href="{{ route('catering.edit', $catering->idCatering) }}"
                                        class="btn btn-warning btn-sm">
                                         Edit
                                     </a>
 
-                                    <form action="{{ route('catering.destroy', $catering->id_catering) }}"
+                                    <form action="{{ route('catering.destroy', $catering->idCatering) }}"
                                           method="POST"
                                           class="d-inline"
                                           onsubmit="return confirm('Yakin ingin menghapus jadwal ini?')">
                                         @csrf
                                         @method('DELETE')
 
-                                        <button type="submit" class="btn btn-danger btn-sm">
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm">
                                             Hapus
                                         </button>
                                     </form>
@@ -85,7 +92,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted">
+                                <td colspan="5"
+                                    class="text-center text-muted">
                                     Belum ada jadwal catering.
                                 </td>
                             </tr>
@@ -96,7 +104,8 @@
         </div>
     </div>
 
-    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary mt-3">
+    <a href="{{ route('dashboard') }}"
+       class="btn btn-outline-secondary mt-3">
         Kembali ke Dashboard
     </a>
 </div>

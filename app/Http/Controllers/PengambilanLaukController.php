@@ -8,51 +8,65 @@ use App\Models\Presensi;
 use App\Models\QrCode;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class PengambilanLaukController extends Controller
 {
     /**
-     * Menampilkan halaman scan dan riwayat pengambilan hari ini.
+     * Menampilkan halaman scan QR dan riwayat hari ini.
      */
     public function index()
     {
         $riwayatHariIni = PengambilanLauk::with([
-            'presensi.santri',
-            'presensi.catering',
+            'santri',
+            'catering',
+            'user',
         ])
-            ->whereHas('presensi', function ($query) {
-                $query->whereDate('waktu_scan', Carbon::today());
-            })
-            ->latest('id_pengambilan')
+            ->whereDate('waktu_ambil', Carbon::today())
+            ->latest('idPengambilan')
             ->get();
 
         return view('scan.index', compact('riwayatHariIni'));
     }
 
     /**
-     * Memproses QR Code pengambilan lauk.
-     * Setiap santri hanya boleh mengambil satu kali
-     * pada setiap sesi per hari.
+     * Memproses scan QR untuk pengambilan lauk.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             'kode_qr' => ['required', 'string'],
-            'waktu' => ['required', 'in:Pagi,Siang,Malam'],
+            'waktu' => ['required', 'in:Pagi,Siang,Sore'],
+        ], [
+            'kode_qr.required' => 'Silakan scan QR Code KTS santri.',
+            'waktu.required' => 'Silakan pilih sesi catering.',
+            'waktu.in' => 'Sesi catering harus Pagi, Siang, atau Sore.',
         ]);
 
-        // Cari QR Code dan data santri pemiliknya.
+        $sekarang = Carbon::now();
+        $tanggalHariIni = $sekarang->toDateString();
+        $sesi = $validated['waktu'];
+
+        // Cari QR Code.
         $qrCode = QrCode::with('santri')
             ->where('kode_qr', trim($validated['kode_qr']))
             ->first();
 
         if (!$qrCode) {
             return back()
-                ->with('error', 'Kode QR tidak terdaftar di dalam sistem!')
+                ->with('error', 'QR Code tidak terdaftar di dalam sistem!')
                 ->withInput();
         }
 
+        // Tolak QR yang tidak aktif.
+        if ((int) $qrCode->status !== 1) {
+            return back()
+                ->with('error', 'QR Code ini tidak aktif. Silakan hubungi admin!')
+                ->withInput();
+        }
+
+        // Pastikan data santri tersedia.
         $santri = $qrCode->santri;
 
         if (!$santri) {
@@ -61,70 +75,67 @@ class PengambilanLaukController extends Controller
                 ->withInput();
         }
 
-        // Cari catering berdasarkan tanggal dan sesi.
-        $catering = Catering::whereDate('tanggal', Carbon::today())
-            ->where('waktu', $validated['waktu'])
+        // Cari jadwal catering hari ini sesuai sesi.
+        $catering = Catering::whereDate('tanggal', $tanggalHariIni)
+            ->where('sesi', $sesi)
             ->first();
 
         if (!$catering) {
             return back()
                 ->with(
                     'error',
-                    'Data catering untuk sesi ' .
-                    $validated['waktu'] .
-                    ' hari ini belum tersedia!'
+                    "Data catering sesi {$sesi} hari ini belum tersedia!"
                 )
                 ->withInput();
         }
 
-        // Periksa pengambilan sebelumnya pada sesi yang sama.
-        $sudahAmbil = PengambilanLauk::whereHas(
-            'presensi',
-            function ($query) use ($santri, $validated) {
-                $query->where('id_santri', $santri->id_santri)
-                    ->whereDate('waktu_scan', Carbon::today())
-                    ->whereHas(
-                        'catering',
-                        function ($cateringQuery) use ($validated) {
-                            $cateringQuery
-                                ->whereDate('tanggal', Carbon::today())
-                                ->where('waktu', $validated['waktu']);
-                        }
-                    );
-            }
-        )->exists();
+        // Periksa apakah santri sudah mengambil pada catering yang sama.
+        $sudahAmbil = PengambilanLauk::where(
+                'santri_id',
+                $santri->idSantri
+            )
+            ->where('catering_id', $catering->idCatering)
+            ->exists();
 
         if ($sudahAmbil) {
             return back()
                 ->with(
                     'error',
-                    "Santri {$santri->nama} (Asrama: {$santri->asrama}) " .
-                    "sudah mengambil lauk pada sesi " .
-                    "{$validated['waktu']} hari ini!"
+                    "Santri {$santri->nama_santri} (Kamar: {$santri->kamar}) "
+                    . "sudah mengambil lauk pada sesi {$sesi} hari ini!"
                 )
                 ->withInput();
         }
 
-        // Simpan presensi dan pengambilan dalam satu transaksi.
-        DB::transaction(function () use ($santri, $catering) {
-            $presensi = Presensi::create([
-                'id_santri' => $santri->id_santri,
-                'id_catering' => $catering->id_catering,
+        // Simpan presensi dan pengambilan lauk secara bersamaan.
+        DB::transaction(function () use (
+            $santri,
+            $catering,
+            $sekarang,
+            $tanggalHariIni
+        ) {
+            Presensi::create([
+                'santri_id' => $santri->idSantri,
+                'catering_id' => $catering->idCatering,
+                'tanggal' => $tanggalHariIni,
+                'waktu' => $sekarang->format('H:i:s'),
                 'status' => 'Hadir',
-                'waktu_scan' => Carbon::now(),
             ]);
 
             PengambilanLauk::create([
-                'id_presensi' => $presensi->id_presensi,
-                'jumlah_lauk' => 1,
+                'santri_id' => $santri->idSantri,
+                'catering_id' => $catering->idCatering,
+                'user_id' => Auth::id(),
+                'waktu_ambil' => $sekarang,
+                'status_ambil' => 'Sudah Ambil',
             ]);
         });
 
         return back()->with(
             'success',
-            "Berhasil! Jatah lauk untuk {$santri->nama} " .
-            "(Asrama: {$santri->asrama}) pada sesi " .
-            "{$validated['waktu']} telah dicatat."
+            "Berhasil! Jatah lauk untuk {$santri->nama_santri} "
+            . "(Kamar: {$santri->kamar}) pada sesi {$sesi} "
+            . "berhasil dicatat."
         );
     }
 }

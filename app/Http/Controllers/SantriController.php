@@ -13,7 +13,7 @@ class SantriController extends Controller
     public function index()
     {
         $santris = Santri::with('qrCode')
-            ->orderByDesc('id_santri')
+            ->orderByDesc('idSantri')
             ->get();
 
         return view('santri.index', compact('santris'));
@@ -27,17 +27,25 @@ class SantriController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'kelas' => 'required|string|max:100',
-            'asrama' => 'required|string|max:100',
+            'nis'    => 'nullable|string|max:50',
+            'nama'   => 'required|string|max:255',
+            'asrama' => 'nullable|string|max:100',
+            'kelas'  => 'nullable|string|max:100',
         ]);
 
-        DB::transaction(function () use ($validated) {
-            $santri = Santri::create($validated);
+        DB::transaction(function () use ($validated, $request) {
+            $nis = !empty($validated['nis']) ? $validated['nis'] : 'NIS-' . time();
 
+            $santri = Santri::create([
+                'nis'         => $nis,
+                'nama_santri' => $validated['nama'],
+                'kamar'       => $validated['asrama'] ?? $request->input('kamar', 'Kamar Utama'),
+            ]);
+
+            // DI SINI PERUBAHAN UTAMANYA: Gunakan 'santri_id'
             QrCode::create([
-                'id_santri' => $santri->id_santri,
-                'kode_qr' => 'QR-' . Str::uuid(),
+                'santri_id' => $santri->idSantri,
+                'kode_qr'   => 'QR-' . Str::uuid(),
             ]);
         });
 
@@ -65,12 +73,17 @@ class SantriController extends Controller
         $santri = Santri::findOrFail($id);
 
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'kelas' => 'required|string|max:100',
-            'asrama' => 'required|string|max:100',
+            'nis'    => 'nullable|string|max:50',
+            'nama'   => 'required|string|max:255',
+            'asrama' => 'nullable|string|max:100',
+            'kelas'  => 'nullable|string|max:100',
         ]);
 
-        $santri->update($validated);
+        $santri->update([
+            'nis'         => !empty($validated['nis']) ? $validated['nis'] : $santri->nis,
+            'nama_santri' => $validated['nama'],
+            'kamar'       => $validated['asrama'] ?? $request->input('kamar', $santri->kamar),
+        ]);
 
         return redirect()
             ->route('santri.index')
@@ -81,7 +94,6 @@ class SantriController extends Controller
     {
         $santri = Santri::findOrFail($id);
 
-        // Jangan hapus santri jika sudah memiliki riwayat presensi.
         if ($santri->presensis()->exists()) {
             return redirect()
                 ->route('santri.index')

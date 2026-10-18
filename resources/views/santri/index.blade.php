@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Data Santri - SPPC')
@@ -432,11 +431,11 @@
                             </td>
 
                             <td class="santri-id">
-                                {{ $santri->id_santri }}
+                                {{ $santri->idSantri }}
                             </td>
 
                             <td class="santri-name">
-                                {{ $santri->nama }}
+                                {{ $santri->nama_santri }}
                             </td>
 
                             <td>
@@ -449,7 +448,7 @@
                             <td>
                                 <span class="room-badge">
                                     <i class="fa-solid fa-door-open me-1"></i>
-                                    {{ $santri->asrama }}
+                                    {{ $santri->kamar }}
                                 </span>
                             </td>
 
@@ -471,7 +470,7 @@
                             <td class="text-center action-column">
                                 <div class="action-buttons">
                                     <a
-                                        href="{{ route('santri.edit', $santri->id_santri) }}"
+                                        href="{{ route('santri.edit', ['santri' => $santri->idSantri]) }}"
                                         class="action-button action-edit"
                                         title="Edit data santri"
                                         aria-label="Edit data santri">
@@ -479,7 +478,7 @@
                                     </a>
 
                                     <form
-                                        action="{{ route('santri.destroy', $santri->id_santri) }}"
+                                        action="{{ route('santri.destroy', ['santri' => $santri->idSantri]) }}"
                                         method="POST"
                                         onsubmit="return confirm('Yakin ingin menghapus data santri ini? Santri yang memiliki riwayat presensi tidak dapat dihapus.')">
                                         @csrf

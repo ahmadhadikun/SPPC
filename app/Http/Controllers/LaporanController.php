@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Presensi;
+use App\Models\PengambilanLauk;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
 {
     public function index()
     {
-        $laporan = Presensi::with([
+        $laporan = PengambilanLauk::with([
             'santri',
             'catering',
-            'pengambilanLauk',
+            'user',
         ])
-            ->orderByDesc('waktu_scan')
+            ->orderByDesc('waktu_ambil')
             ->get();
 
         return view('laporan.index', compact('laporan'));
@@ -22,12 +22,12 @@ class LaporanController extends Controller
 
     public function pdf()
     {
-        $laporan = Presensi::with([
+        $laporan = PengambilanLauk::with([
             'santri',
             'catering',
-            'pengambilanLauk',
+            'user',
         ])
-            ->orderByDesc('waktu_scan')
+            ->orderByDesc('waktu_ambil')
             ->get();
 
         $pdf = Pdf::loadView('laporan.pdf', compact('laporan'));

@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('content')
@@ -353,9 +352,24 @@
                 </a>
             </div>
 
+            {{-- Kelola Users --}}
+            <div class="col-12 col-lg-4">
+                <a href="{{ route('users.index') }}" class="quick-link">
+                    <div class="quick-icon">👥</div>
+                    <div>
+                        <div class="quick-title">Kelola Users</div>
+                        <p class="quick-description">
+                            Tambah, edit, dan kelola akun pengguna sistem.
+                        </p>
+                    </div>
+                    <span class="quick-arrow">›</span>
+                </a>
+            </div>
+
         </div>
     </div>
 
+    {{-- Catatan bawah --}}
     <div class="bottom-note">
         <span>●</span>
         <span>Dashboard Admin SPPC — pusat pemantauan dan pengelolaan sistem.</span>

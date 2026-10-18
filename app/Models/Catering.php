@@ -4,18 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Presensi;
 
 class Catering extends Model
 {
     use HasFactory;
 
-    protected $table = 'catering';
+    protected $table = 'caterings';
 
-    protected $primaryKey = 'id_catering';
+    protected $primaryKey = 'idCatering';
 
     protected $fillable = [
+        'user_id',
         'tanggal',
-        'waktu',
+        'sesi',
         'menu',
     ];
 
@@ -25,12 +27,13 @@ class Catering extends Model
             'tanggal' => 'date',
         ];
     }
+
     public function presensis()
     {
         return $this->hasMany(
-            \App\Models\Presensi::class,
-            'id_catering',
-            'id_catering'
+            Presensi::class,
+            'catering_id',
+            'idCatering'
         );
     }
 }

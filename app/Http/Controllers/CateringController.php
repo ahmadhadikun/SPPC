@@ -11,7 +11,7 @@ class CateringController extends Controller
     public function index()
     {
         $caterings = Catering::orderByDesc('tanggal')
-            ->orderBy('waktu')
+            ->orderBy('sesi')
             ->get();
 
         return view('catering.index', compact('caterings'));
@@ -26,9 +26,9 @@ class CateringController extends Controller
     {
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
-            'waktu' => [
+            'sesi' => [
                 'required',
-                Rule::in(['Pagi', 'Siang', 'Malam']),
+                Rule::in(['Pagi', 'Siang', 'Sore']),
             ],
             'menu' => ['required', 'string', 'max:255'],
         ]);
@@ -53,9 +53,9 @@ class CateringController extends Controller
 
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
-            'waktu' => [
+            'sesi' => [
                 'required',
-                Rule::in(['Pagi', 'Siang', 'Malam']),
+                Rule::in(['Pagi', 'Siang', 'Sore']),
             ],
             'menu' => ['required', 'string', 'max:255'],
         ]);
