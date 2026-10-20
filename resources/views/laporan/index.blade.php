@@ -4,19 +4,36 @@
 
 @section('content')
 <div class="container-fluid px-2">
+    
     <!-- Header Halaman -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h3 class="fw-bold text-dark mb-1">
-                <i class="fa-solid fa-file-lines me-2 text-primary"></i>Rekapitulasi Pengambilan Lauk Santri
+              <i class="fa-solid fa-file-lines me-2 text-primary"></i>
+            Rekapitulasi Pengambilan Lauk Santri
             </h3>
-            <p class="text-muted text-sm mb-0">Daftar santri yang telah melakukan pengambilan lauk berdasarkan hasil scan katering.</p>
+            <p class="text-muted text-sm mb-0">
+            Daftar santri yang telah melakukan pengambilan lauk berdasarkan hasil scan katering.
+        </p>
         </div>
-        <!-- Ubah tombol cetak menjadi link Unduh PDF -->
-        <a href="{{ route('laporan.pdf') }}" target="_blank" class="btn btn-primary shadow-sm">
-            <i class="fa-solid fa-file-pdf me-2"></i>Unduh PDF
-        </a>
+
+        <div class="d-flex flex-wrap gap-2">
+           <a href="{{ route('laporan.bulanan') }}"
+           class="btn btn-success shadow-sm">
+              <i class="fa-solid fa-calendar-days me-2"></i>
+            Laporan Bulanan
+            </a>
+
+            <a href="{{ route('laporan.pdf') }}"
+           target="_blank"
+           class="btn btn-primary shadow-sm">
+              <i class="fa-solid fa-file-pdf me-2"></i>
+            Unduh PDF
+           </a>
+        </div>
     </div>
+
+             
 
     <!-- Tabel Data (Seterusnya ke bawah tetap sama) -->
     <div class="card shadow-sm border-0 rounded-3">

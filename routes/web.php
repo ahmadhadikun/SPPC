@@ -95,6 +95,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/pdf', [LaporanController::class, 'pdf'])
         ->name('laporan.pdf');
 
+    Route::get('/laporan/bulanan', [LaporanController::class, 'bulanan'])
+        ->name('laporan.bulanan');
+
+    Route::get('/laporan/bulanan/pdf', [LaporanController::class, 'pdfBulanan'])
+        ->name('laporan.bulanan.pdf');    
+
     // Kelola Users — khusus Admin
     Route::middleware('role:admin')->group(function () {
         Route::resource('users', UserController::class)
