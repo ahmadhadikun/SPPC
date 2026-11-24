@@ -1,0 +1,257 @@
+{
+  "project": {
+    "name": "SPPC (Sistem Presensi & Pengambilan Catering)",
+    "organization": "Pesantren Walisongo",
+    "discovery_date": "2026-11-24",
+    "tech_stack": {
+      "framework": "Laravel 13.x",
+      "php_version": "^8.3",
+      "database": "MySQL / MariaDB (sppc_walisongo)",
+      "frontend": "Blade, Bootstrap, FontAwesome, html5-qrcode v2.3.8",
+      "pdf_library": "barryvdh/laravel-dompdf ^3.1",
+      "api_auth": "Laravel Sanctum ^4.0"
+    },
+    "target_users": [
+      "Admin",
+      "Petugas Catering",
+      "Pengasuh"
+    ],
+    "primary_process": "Pencatatan pengambilan jatah makan/lauk santri melalui scan QR per sesi makan (Pagi, Siang, Malam)."
+  },
+  "roles": [
+    {
+      "role": "admin",
+      "redirect": "/dashboard",
+      "description": "Akses menyeluruh: data santri, jadwal catering, scan QR, laporan."
+    },
+    {
+      "role": "catering",
+      "redirect": "/scan",
+      "description": "Petugas dapur/catering: fokus verifikasi & scan QR santri saat pengambilan lauk."
+    },
+    {
+      "role": "pengasuh",
+      "redirect": "/laporan",
+      "description": "Pengasuh pesantren: monitoring rekapitulasi presensi & cetak laporan PDF."
+    }
+  ],
+  "pages": [
+    {
+      "id": "PAGE-01",
+      "name": "Login",
+      "route": "/login",
+      "auth": "Guest",
+      "features": [
+        "Autentikasi email & password",
+        "Redirect berbasis role"
+      ]
+    },
+    {
+      "id": "PAGE-02",
+      "name": "Dashboard Admin",
+      "route": "/dashboard",
+      "auth": "admin",
+      "features": [
+        "Statistik Total Santri",
+        "Statistik Presensi Hari Ini",
+        "Statistik QR Terdaftar"
+      ]
+    },
+    {
+      "id": "PAGE-03",
+      "name": "Dashboard Catering",
+      "route": "/dashboard",
+      "auth": "catering",
+      "features": [
+        "Tampilan ringkas untuk petugas catering"
+      ]
+    },
+    {
+      "id": "PAGE-04",
+      "name": "Dashboard Pengasuh",
+      "route": "/dashboard",
+      "auth": "pengasuh",
+      "features": [
+        "Statistik presensi hari ini"
+      ]
+    },
+    {
+      "id": "PAGE-05",
+      "name": "Manajemen Santri",
+      "route": "/santri",
+      "auth": "admin (seharusnya)",
+      "features": [
+        "List santri",
+        "Tambah santri + auto QR",
+        "Edit data",
+        "Hapus santri (terproteksi riwayat)"
+      ]
+    },
+    {
+      "id": "PAGE-06",
+      "name": "Jadwal Catering",
+      "route": "/catering",
+      "auth": "admin (seharusnya)",
+      "features": [
+        "List jadwal",
+        "Tambah jadwal (tanggal, sesi, menu)",
+        "Edit jadwal",
+        "Hapus jadwal (terproteksi riwayat)"
+      ]
+    },
+    {
+      "id": "PAGE-07",
+      "name": "Scan QR Pengambilan",
+      "route": "/scan",
+      "auth": "catering, admin",
+      "features": [
+        "Scanner kamera (html5-qrcode)",
+        "Input manual kode QR",
+        "Tabel riwayat realtime hari ini",
+        "Validasi 1 kali per sesi"
+      ]
+    },
+    {
+      "id": "PAGE-08",
+      "name": "Laporan Rekapitulasi",
+      "route": "/laporan",
+      "auth": "pengasuh, admin",
+      "features": [
+        "Tabel rekapitulasi kehadiran",
+        "Export PDF (DomPDF)"
+      ]
+    }
+  ],
+  "api_endpoints": [
+    {
+      "endpoint": "/api/santri",
+      "method": "GET, POST, PUT, DELETE",
+      "auth": "None (Public - Unprotected)",
+      "risk": "Critical"
+    },
+    {
+      "endpoint": "/api/lauk",
+      "method": "GET, POST, PUT, DELETE",
+      "auth": "None (Public - Unprotected)",
+      "risk": "Critical"
+    },
+    {
+      "endpoint": "/api/pengambilan-lauk",
+      "method": "GET, POST, PUT, DELETE",
+      "auth": "None (Public - Unprotected)",
+      "risk": "Critical"
+    },
+    {
+      "endpoint": "/api/user",
+      "method": "GET",
+      "auth": "auth:sanctum",
+      "risk": "Low"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "Critical",
+      "title": "Schema Mismatch Database Migration vs Eloquent Model",
+      "impact": "Migrate fresh gagal atau struktur kolom/tabel berbeda fatal."
+    },
+    {
+      "id": "F-002",
+      "severity": "Critical",
+      "title": "API Endpoint Tidak Dilindungi Middleware Autentikasi",
+      "impact": "Data santri dan transaksi dapat dimanipulasi tanpa login."
+    },
+    {
+      "id": "F-003",
+      "severity": "High",
+      "title": "Tidak Ada Middleware Authorization (RBAC) pada Web Routes",
+      "impact": "Role catering/pengasuh dapat mengakses CRUD santri dan jadwal catering."
+    },
+    {
+      "id": "F-004",
+      "severity": "High",
+      "title": "PengambilanLaukApiController Memanggil Relasi Tidak Terdefinisi",
+      "impact": "API crash dengan error Call to undefined relationship."
+    },
+    {
+      "id": "F-005",
+      "severity": "High",
+      "title": "Model PesertaCatering Foreign Key Mismatch",
+      "impact": "Relasi ke Santri selalu menghasilkan null."
+    },
+    {
+      "id": "F-006",
+      "severity": "High",
+      "title": "LaporanController Query All Tanpa Pagination",
+      "impact": "Risiko memory exhaustion & timeout saat data membesar."
+    },
+    {
+      "id": "F-007",
+      "severity": "Medium",
+      "title": "Model & Tabel Laporan Merupakan Dead Code",
+      "impact": "Tabel laporan tidak pernah diisi; controller membaca langsung dari presensi."
+    },
+    {
+      "id": "F-008",
+      "severity": "Medium",
+      "title": "Tidak Ada Validasi Duplikasi Jadwal Catering",
+      "impact": "Duplikat sesi pada tanggal yang sama menimbulkan inkonsistensi scan QR."
+    },
+    {
+      "id": "F-009",
+      "severity": "Medium",
+      "title": "Tidak Ada Fitur Visualisasi / Print Kartu QR Santri",
+      "impact": "Santri tidak memiliki kartu fisik untuk discan di scanner kamera."
+    },
+    {
+      "id": "F-010",
+      "severity": "Medium",
+      "title": "Library html5-qrcode Bergantung pada CDN Eksternal",
+      "impact": "Scanner kamera tidak berfungsi bila internet pesantren offline."
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "REC-001",
+      "priority": "P0 (Immediate)",
+      "target": "Database",
+      "summary": "Sinkronkan migration dengan Model aktual melalui migration konsolidasi baru."
+    },
+    {
+      "id": "REC-002",
+      "priority": "P0 (Immediate)",
+      "target": "Security",
+      "summary": "Pasang middleware auth:sanctum pada semua API endpoint di routes/api.php."
+    },
+    {
+      "id": "REC-003",
+      "priority": "P1 (High)",
+      "target": "Security",
+      "summary": "Terapkan RoleMiddleware di routes/web.php untuk membatasi akses tiap role."
+    },
+    {
+      "id": "REC-004",
+      "priority": "P1 (High)",
+      "target": "Backend",
+      "summary": "Perbaiki relasi Eloquent di PengambilanLaukApiController & PesertaCatering."
+    },
+    {
+      "id": "REC-005",
+      "priority": "P1 (High)",
+      "target": "Performance",
+      "summary": "Tambahkan server-side pagination & filter tanggal/sesi di modul Laporan."
+    },
+    {
+      "id": "REC-006",
+      "priority": "P2 (Medium)",
+      "target": "Feature",
+      "summary": "Tambahkan fitur generator kartu QR (simplesoftwareio/simple-qrcode) untuk santri."
+    },
+    {
+      "id": "REC-007",
+      "priority": "P2 (Medium)",
+      "target": "Reliability",
+      "summary": "Bundel library html5-qrcode secara lokal via npm/Vite agar tahan offline."
+    }
+  ]
+}

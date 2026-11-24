@@ -1,0 +1,152 @@
+{
+  "timestamp": "2026-11-24T07:39:39.964Z",
+  "environment": {
+    "url": "http://127.0.0.1:8000",
+    "browser": "Microsoft Edge (Chromium Engine)",
+    "viewport": {
+      "width": 1280,
+      "height": 800
+    }
+  },
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "blocked": 0,
+    "passRate": "100.0%"
+  },
+  "testCases": [
+    {
+      "id": "TC001",
+      "role": "GUEST",
+      "module": "AUTH",
+      "title": "Tampilan Form Login dan Elemen Input Autentikasi",
+      "status": "PASS",
+      "expected": "Form login tampil lengkap dengan input email, password, dan tombol submit",
+      "actual": "Halaman login berhasil dimuat dengan form email & password",
+      "screenshot": "TC001_GUEST_LOGIN_STEP01_PASS.png"
+    },
+    {
+      "id": "TC002",
+      "role": "GUEST",
+      "module": "AUTH",
+      "title": "Validasi Penolakan Kredensial Login yang Salah (Negative Test)",
+      "status": "PASS",
+      "expected": "Muncul notifikasi error bahwa kredensial salah",
+      "actual": "Notifikasi kesalahan autentikasi ditampilkan dengan benar",
+      "screenshot": "TC002_GUEST_LOGIN_STEP02_PASS.png"
+    },
+    {
+      "id": "TC003",
+      "role": "ADMIN",
+      "module": "DASHBOARD",
+      "title": "Login Role Admin dan Tampilan Statistik Dashboard",
+      "status": "PASS",
+      "expected": "Redirect ke /dashboard dan menampilkan statistik admin (Total Santri, Presensi, QR)",
+      "actual": "Berhasil login dan diarahkan ke http://127.0.0.1:8000/dashboard dengan kartu statistik admin",
+      "screenshot": "TC003_ADMIN_DASHBOARD_STEP01_PASS.png"
+    },
+    {
+      "id": "TC004",
+      "role": "ADMIN",
+      "module": "SANTRI",
+      "title": "Navigasi dan Tampilan Tabel Manajemen Data Santri",
+      "status": "PASS",
+      "expected": "Tabel daftar santri dan kode QR tampil dengan benar",
+      "actual": "Daftar santri berhasil ditampilkan dalam tabel",
+      "screenshot": "TC004_ADMIN_SANTRI_STEP01_PASS.png"
+    },
+    {
+      "id": "TC005",
+      "role": "ADMIN",
+      "module": "SANTRI",
+      "title": "Tampilan Form Tambah Data Santri Baru",
+      "status": "PASS",
+      "expected": "Form input santri (nama, kelas, asrama) tampil lengkap",
+      "actual": "Form input penambahan santri tampil lengkap",
+      "screenshot": "TC005_ADMIN_SANTRI_CREATE_STEP01_PASS.png"
+    },
+    {
+      "id": "TC006",
+      "role": "ADMIN",
+      "module": "CATERING",
+      "title": "Tampilan Tabel Manajemen Jadwal & Menu Catering",
+      "status": "PASS",
+      "expected": "Tabel jadwal catering per tanggal dan sesi tampil",
+      "actual": "Daftar jadwal catering dan menu tampil dengan benar",
+      "screenshot": "TC006_ADMIN_CATERING_STEP01_PASS.png"
+    },
+    {
+      "id": "TC007",
+      "role": "CATERING",
+      "module": "AUTH_ROUTING",
+      "title": "Login Petugas Catering dan Otomatisasi Pengalihan ke Menu Scan",
+      "status": "PASS",
+      "expected": "User dengan role catering otomatis dialihkan ke /scan",
+      "actual": "Berhasil diarahkan langsung ke halaman operasional http://127.0.0.1:8000/scan",
+      "screenshot": "TC007_CATERING_LOGIN_SCAN_STEP01_PASS.png"
+    },
+    {
+      "id": "TC008",
+      "role": "CATERING",
+      "module": "SCAN",
+      "title": "Tampilan Komponen Kamera Scanner dan Input Manual Kode QR",
+      "status": "PASS",
+      "expected": "Komponen scanner kamera (#reader) dan input manual kode QR tampil",
+      "actual": "Seluruh komponen scanner kamera dan input form manual tampil dengan baik",
+      "screenshot": "TC008_CATERING_SCAN_PAGE_STEP01_PASS.png"
+    },
+    {
+      "id": "TC009",
+      "role": "CATERING",
+      "module": "SCAN",
+      "title": "Pemrosesan Transaksi Scan QR Santri Valid untuk Pengambilan Jatah Lauk",
+      "status": "PASS",
+      "expected": "Data tercatat atau terverifikasi dan muncul notifikasi konfirmasi",
+      "actual": "Sistem berhasil memvalidasi riwayat santri",
+      "screenshot": "TC009_CATERING_SCAN_EXECUTE_STEP02_PASS.png"
+    },
+    {
+      "id": "TC010",
+      "role": "CATERING",
+      "module": "BUSINESS_RULE",
+      "title": "Penegakan Aturan Bisnis: Pencegahan Pengambilan Ganda (1 Santri 1 Jatah per Sesi)",
+      "status": "PASS",
+      "expected": "Ditolak dengan peringatan bahwa santri sudah mengambil lauk di sesi ini hari ini",
+      "actual": "Sistem menolak dengan alert peringatan: santri sudah mengambil lauk pada sesi ini",
+      "screenshot": "TC010_CATERING_SCAN_DUPLICATE_STEP03_PASS.png"
+    },
+    {
+      "id": "TC011",
+      "role": "CATERING",
+      "module": "SECURITY_RBAC",
+      "title": "Pemeriksaan Pembatasan Hak Akses (Role-Based Access Control) Menu Santri",
+      "severity": "High",
+      "status": "PASS",
+      "expected": "Akses ditolak dengan status HTTP 403 Forbidden",
+      "actual": "BERHASIL DIAMANKAN: Akses ditolak dengan status HTTP 403 Forbidden (Akses Ditolak)",
+      "screenshot": "TC011_CATERING_SECURITY_RBAC_STEP01_PASS.png"
+    },
+    {
+      "id": "TC012",
+      "role": "PENGASUH",
+      "module": "AUTH_ROUTING",
+      "title": "Login Role Pengasuh dan Otomatisasi Pengalihan ke Menu Laporan",
+      "status": "PASS",
+      "expected": "User dengan role pengasuh otomatis diarahkan ke /laporan",
+      "actual": "Berhasil diarahkan langsung ke halaman rekapitulasi http://127.0.0.1:8000/laporan",
+      "screenshot": "TC012_PENGASUH_LOGIN_LAPORAN_STEP01_PASS.png"
+    },
+    {
+      "id": "TC013",
+      "role": "PENGASUH",
+      "module": "REPORTING",
+      "title": "Tampilan Tabel Rekapitulasi Presensi dan Ketersediaan Tombol Export PDF",
+      "status": "PASS",
+      "expected": "Tabel riwayat kehadiran dan tombol download PDF tersedia lengkap",
+      "actual": "Tabel rekapitulasi presensi dan tombol Export PDF aktif ditampilkan",
+      "screenshot": "TC013_PENGASUH_LAPORAN_LIST_STEP01_PASS.png"
+    }
+  ],
+  "bugs": []
+}
